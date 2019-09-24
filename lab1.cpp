@@ -1,6 +1,8 @@
+//Waterfall Model
+//lab1.cpp
 //
 //modified by: Brian Magana
-//date: 16 September 2019
+//date: 23 September 2019
 //
 //3350 Spring 2019 Lab-1
 //This program demonstrates the use of OpenGL and XWindows
