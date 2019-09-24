@@ -41,7 +41,7 @@ using namespace std;
 #include <GL/glx.h>
 #include "fonts.h"
 
-const int MAX_PARTICLES = 2000;
+const int MAX_PARTICLES = 3000;
 const int MAX_BOXES = 5;
 const float GRAVITY     = 0.1;
 
@@ -130,13 +130,11 @@ Global::Global() // constructor
 		box[i].height = 10;
 		if (i == 0) {
 			box[i].center.x = (int)(xres*0.15);
-			box[i].center.y = (int)(yres*0.65);
+			box[i].center.y = (int)(yres*0.75);
 		} else {
-			box[i].center.x = box[i-1].center.x + box[i].width*1.5;
+			box[i].center.x = box[i-1].center.x + box[i].width*1.25;
 			box[i].center.y = box[i-1].center.y - box[i].height*4; 
 		}
-		//box[i].center.x = 120 + 5*65;
-		//box[i].center.y = 500 - 5*60;
 	}
 	n = 0;
 }
@@ -229,13 +227,13 @@ void makeParticle(int x, int y)
 	//
 	if (g.n >= MAX_PARTICLES)
 		return;
-	cout << "makeParticle() " << x << " " << y << endl;
+	//cout << "makeParticle() " << x << " " << y << endl;
 	//set position of particle
 	Particle *p = &g.particle[g.n];
 	p->s.center.x = x;
 	p->s.center.y = y;
 	p->velocity.y =  ((double)rand() / (double)RAND_MAX) - 0.5;
-	p->velocity.x =  abs(((double)rand() / (double)RAND_MAX) - 0.25 + 0.5);
+	p->velocity.x =  abs(((double)rand() / (double)RAND_MAX) - 0.15 + 0.5);
 	++g.n;
 }
 
@@ -261,7 +259,7 @@ void check_mouse(XEvent *e)
 			savex = e->xbutton.x;
 			savey = e->xbutton.y;
 			int y = g.yres - e->xbutton.y;
-			for (int i = 0; i < 15; i++)
+			for (int i = 0; i < 20; i++)
 				makeParticle(e->xbutton.x, y);
 			return;
 		}
@@ -277,7 +275,7 @@ void check_mouse(XEvent *e)
 			savey = e->xbutton.y;
 			//Code placed here will execute whenever the mouse moves.
 			int y = g.yres - e->xbutton.y;
-			for (int i = 0; i < 15; i++)
+			for (int i = 0; i < 20; i++)
 			    makeParticle(e->xbutton.x, y);
 		}
 		return;
@@ -324,13 +322,12 @@ void movement()
 				    p->s.center.x > s->center.x - s->width &&
 				    p->s.center.x < s->center.x + s->width)
 			    //reverse direction of velocity when collision
-			    p->velocity.y = -p->velocity.y*0.75;
+			    p->velocity.y = -p->velocity.y*0.5;
 	    }
 	    //check for off-screen
 	    if (p->s.center.y < 0.0) {
 		//cout << "off screen" << endl;
 		g.particle[i] = g.particle[--g.n];
-		//--g.n;
 	    }
 	}
 }
@@ -342,24 +339,11 @@ void render()
 	//draw the box
 	Shape *s;
 	float w, h;
+	int color1[] = { 255, 0, 0, 255, 255 };
+	int color2[] = { 0, 0, 180, 0, 255};
+	int color3[] = { 0, 255, 0, 255, 0 };
 	for (int i = 0; i < MAX_BOXES; i++) {
-		switch (i) {
-			case 0:
-				glColor3ub(255,0,0);
-				break;
-			case 1:
-				glColor3ub(0,0,255);
-				break;
-			case 2:
-				glColor3ub(0,180,0);
-				break;
-			case 3:
-				glColor3ub(255,0,255);
-				break;
-			case 4:
-				glColor3ub(255,255,0);
-				break;
-		}
+		glColor3ub(color1[i],color2[i],color3[i]);
 		s = &g.box[i];
 		glPushMatrix();
 		glTranslatef(s->center.x, s->center.y, s->center.z);
@@ -375,7 +359,6 @@ void render()
 	}
 	//
 	//Draw particles here
-	//if (g.n > 0) {
 	for (int i = 0; i < g.n; i++) {
 		//There is at least one particle to draw.
 		glPushMatrix();
@@ -402,6 +385,7 @@ void render()
 	for (int i = 0; i < MAX_BOXES; i++) {
 		r.left = g.box[i].center.x - g.box[i].width/2;
 		r.bot = g.box[i].center.y - g.box[i].height/2;
+		r.top = g.box[i].center.y + g.box[i].height/2;
 		switch (i) {
 			case 0:
 				ggprint10(&r, 16, 0x00000000, "Requirements");
@@ -421,9 +405,3 @@ void render()
 		}
 	}
 }
-
-
-
-
-
-
